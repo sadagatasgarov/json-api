@@ -1,0 +1,16 @@
+FROM golang:1.21-alpine3.17 as builder
+
+WORKDIR /app
+
+COPY . .
+RUN go mod download
+COPY *.go .
+
+RUN go build -o ./gobank
+
+FROM scratch
+
+COPY --from=builder ./app /app
+
+
+CMD [ "./app/gobank" ]
