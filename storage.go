@@ -57,17 +57,17 @@ func (s *PostgresStore) createAccountTable() error {
 
 func (s *PostgresStore) CreateAccount(account *Account) error {
 	query := `insert into account(first_name, lastname, number, balance, created_at) values ($1, $2, $3, $4, $5)`
-	resp, err := s.db.Query(query,
-		account.FirstName,
-		account.LastName,
-		account.Number,
-		account.Balance,
-		account.CreateAt)
+	_, err := s.db.Query(query,
+		&account.FirstName,
+		&account.LastName,
+		&account.Number,
+		&account.Balance,
+		&account.CreateAt)
 
 	if err != nil {
 		return err
 	}
-	fmt.Printf("%+v\n", resp)
+	//fmt.Printf("%+v\n", resp)
 	return nil
 }
 
@@ -76,7 +76,8 @@ func (s *PostgresStore) UpdateAccount(*Account) error {
 }
 
 func (s *PostgresStore) DeleteAccount(id int) error {
-	_, err := s.db.Query("delete from account where id = $1", id)
+	t, err := s.db.Query("delete from account where id = $1", id)
+	fmt.Println(t)
 	if err != nil {
 		return err
 	}
