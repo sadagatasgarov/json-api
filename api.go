@@ -27,7 +27,7 @@ func NewAPIServer(listenAddr string, store Storage) *APIServer {
 func (s *APIServer) Run() {
 	router := mux.NewRouter()
 	router.HandleFunc("/account", makeHTTPHandleFunc(s.handleAccount))
-	router.HandleFunc("/account/{id}", withJWTAuth(makeHTTPHandleFunc(s.handleAccountById)))
+	router.HandleFunc("/account/{id}", withJWTAuth(makeHTTPHandleFunc(s.handleAccountById), s.store))
 
 	router.HandleFunc("/transfer", makeHTTPHandleFunc(s.handleTransfer))
 
@@ -88,6 +88,7 @@ func (s *APIServer) handleCreateAccount(w http.ResponseWriter, r *http.Request) 
 		return err
 	}
 	fmt.Println(tokenString)
+
 	// Sada Asga
 	// eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJFeHBpcmVzQXQiOjE1MDAwLCJhY2NvdW50TnVtYmVyIjo2NzE1OTB9.QBMFQiE-98o9WrNl40tRwAKerbReML7h3IwckexVaNc
 	return WriteJSON(w, http.StatusOK, account)
@@ -191,32 +192,68 @@ func getId(r *http.Request) (int, error) {
 }
 
 func createJWT(account *Account) (string, error) {
-	//mySigningKey := []byte("AllYourBase")
-
-	// Create the Claims
 	claims := &jwt.MapClaims{
-		"ExpiresAt": 15000,
+		"ExpiresAt":     15000,
 		"accountNumber": account.Number,
 	}
 
-	secret:=os.Getenv("JWT_SECRET")
+	secret := os.Getenv("JWT_SECRET")
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	ss, err := token.SignedString([]byte(secret))
-	fmt.Printf("%v %v", ss, err)
+	if err != nil {
+		fmt.Printf("%v", err)
+	}
+	//fmt.Printf("%v %v", ss, err)
 	return ss, nil
 
 }
 
-func withJWTAuth(handlers http.HandlerFunc) http.HandlerFunc {
+func permissionDenied(w http.ResponseWriter) {
+	WriteJSON(w, http.StatusForbidden, ApiError{Error: "permission denied"})
+}
+
+func withJWTAuth(handlers http.HandlerFunc, s Storage) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		fmt.Println("JWT ise dusdu")
 		tokenString := r.Header.Get("x-jwt-token")
-		fmt.Println(tokenString)
-		_, err := validateJWT(tokenString)
+
+		//fmt.Println(tokenString)
+
+		token, err := validateJWT(tokenString)
+		if err != nil {
+			permissionDenied(w)
+			return
+		}
+
+		if !token.Valid {
+			permissionDenied(w)
+			return
+		}
+
+		userID, err := getId(r)
+		if err != nil {
+			permissionDenied(w)
+			return
+		}
+
+		account, err := s.GetAccountById(userID)
+		if err != nil {
+			permissionDenied(w)
+			return
+		}
+
+		claims := token.Claims.(jwt.MapClaims)
+		//panic(reflect.TypeOf(claims["accountNumber"]))
+		if float64(account.Number) != claims["accountNumber"] {
+			permissionDenied(w)
+			return
+		}
+
 		if err != nil {
 			WriteJSON(w, http.StatusForbidden, ApiError{Error: "invalid token"})
 			return
 		}
+
 		handlers(w, r)
 	}
 }
