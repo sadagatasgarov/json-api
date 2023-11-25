@@ -11,9 +11,7 @@ services:
       POSTGRES_PASSWORD: strong-password
     volumes:
       - local_pgdata:/var/lib/postgresql/data
-    networks:
-      network:
-        ipv4_address: 10.5.0.5
+
   pgadmin:
     image: dpage/pgadmin4
     container_name: pgadmin4_container
@@ -25,18 +23,22 @@ services:
       PGADMIN_DEFAULT_PASSWORD: strong-password
     volumes:
       - pgadmin-data:/var/lib/pgadmin
-    networks:
-      network:
-        ipv4_address: 10.5.0.6
+
+  
+  my-json:
+    image: sadagatasgarov/my-json-app:v4
+    container_name: myjson
+    restart: always
+    ports:
+      - "3000:3000"
+    environment:
+      HOSTAPP: local_pgdb
+      USERAPP: user-namedocker 
+      PASSAPP: strong-password
+      DB: postgres
+
 
 volumes:
   local_pgdata:
   pgadmin-data:
 
-networks:
-  network:
-    driver: bridge
-    ipam:
-      config:
-        - subnet: 10.5.0.0/16
-          gateway: 10.5.0.1

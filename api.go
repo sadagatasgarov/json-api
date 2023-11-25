@@ -26,18 +26,39 @@ func NewAPIServer(listenAddr string, store Storage) *APIServer {
 
 func (s *APIServer) Run() {
 	router := mux.NewRouter()
+	router.Use(corsMiddleware)
 	router.HandleFunc("/login", makeHTTPHandleFunc(s.handleLogin))
+	router.Use(corsMiddleware)
 	router.HandleFunc("/account", makeHTTPHandleFunc(s.handleAccount))
+	router.Use(corsMiddleware)
 	router.HandleFunc("/account/{id}", withJWTAuth(makeHTTPHandleFunc(s.handleAccountById), s.store))
+	router.Use(corsMiddleware)
 
 	router.HandleFunc("/transfer", makeHTTPHandleFunc(s.handleTransfer))
+	router.Use(corsMiddleware)
 
 	log.Println("JSON API server running on port: ", s.listenAddr)
 	http.ListenAndServe(s.listenAddr, router)
 
 }
 
+func corsMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			w.Header().Set("Access-Control-Allow-Origin", "*")                                                            // 允许访问所有域，可以换成具体url，注意仅具体url才能带cookie信息
+			w.Header().Add("Access-Control-Allow-Headers", "Content-Type,AccessToken,X-CSRF-Token, Authorization, Token") //header的类型
+			w.Header().Add("Access-Control-Allow-Credentials", "true")                                                    //设置为true，允许ajax异步请求带cookie信息
+			w.Header().Add("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")                             //允许请求方法
+			w.Header().Set("content-type", "application/json;charset=UTF-8")                                              //返回数据格式是json
+			if r.Method == "OPTIONS" {
+					w.WriteHeader(http.StatusNoContent)
+					return
+			}
+			next.ServeHTTP(w, r)
+	})
+}
+
 func (s *APIServer) handleLogin(w http.ResponseWriter, r *http.Request) error {
+	w.Header().Set("Access-Control-Allow-Origin", "*") 
 	if r.Method != http.MethodPost {
 		return fmt.Errorf("method not allowed %s", r.Method)
 	}
@@ -71,6 +92,7 @@ func (s *APIServer) handleLogin(w http.ResponseWriter, r *http.Request) error {
 }
 
 func (s *APIServer) handleAccount(w http.ResponseWriter, r *http.Request) error {
+	w.Header().Set("Access-Control-Allow-Origin", "*") 
 	if r.Method == http.MethodGet {
 		return s.handleGetAccount(w, r)
 	}
@@ -87,6 +109,7 @@ func (s *APIServer) handleAccount(w http.ResponseWriter, r *http.Request) error 
 }
 
 func (s *APIServer) handleGetAccount(w http.ResponseWriter, r *http.Request) error {
+	w.Header().Set("Access-Control-Allow-Origin", "*") 
 	accounts, err := s.store.GetAccounts()
 	if err != nil {
 		return err
@@ -96,6 +119,7 @@ func (s *APIServer) handleGetAccount(w http.ResponseWriter, r *http.Request) err
 }
 
 func (s *APIServer) handleCreateAccount(w http.ResponseWriter, r *http.Request) error {
+	w.Header().Set("Access-Control-Allow-Origin", "*") 
 	req := new(CreateAccountRequest)
 	if err := json.NewDecoder(r.Body).Decode(req); err != nil {
 		return err
