@@ -7,7 +7,11 @@ POST body
   "lastName":"Asgarov",
   "password":"password"
 }
-
+`{
+  "firstName":"Sadagat",
+  "lastName":"Asgarov",
+  "password":"password"
+}`
 Butun istifadecileri siralamaq ucun
 localhost:3000/account (GET)
 {
