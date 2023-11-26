@@ -1,19 +1,22 @@
-qeydiyyatdan kecirmek ucun
+Qeydiyyatdan kecmek ucun
+(POST)
+token verir onu headerse yazmaq qalir
+ve login olan zaman o token ile yoxlanilir
 
-localhost:3000/account (POST)
-POST body
+http://localhost:3000/account
+```
 {
   "firstName":"Sadagat",
   "lastName":"Asgarov",
   "password":"password"
 }
-`{
-  "firstName":"Sadagat",
-  "lastName":"Asgarov",
-  "password":"password"
-}`
+```
+
 Butun istifadecileri siralamaq ucun
-localhost:3000/account (GET)
+(GET)
+
+[http://localhost:3000/account ](url)
+```
 {
   "id": 0,
   "firstName": "Sadagat",
@@ -22,22 +25,23 @@ localhost:3000/account (GET)
   "balance": 0,
   "createdAt": "2023-11-25T04:21:26.137130896Z"
 }
+```
 
-localhost:3000/account (POST)
+Qeydiyyatdan kecmis istifadecinin giris etmesi
+number (POST)
 
-  {
+[http://localhost:3000/account](url) 
+
+ ```
+ {
     "number":,
     "password":"password"
 
   }
-
-istifadeci oz id ile oz idsini baxa biler
-localhost:3000/account/(istifadecinin idsi)
-id ile baxmaq tek tek istifadecilere
-
+```
 
 Proyekti ise salmaq ucun docker-compose.yml fayli
-
+```
 version: "3.8"
 services:
   db:
@@ -67,4 +71,6 @@ services:
 
 volumes:
   local_pgdata:
+```
+
 
