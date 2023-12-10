@@ -1,4 +1,4 @@
-module github.com/sadagatasgarov/testjson
+module gitlab.com/sadagatasgarov/json-api
 
 go 1.21
 
