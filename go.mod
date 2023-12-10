@@ -1,6 +1,6 @@
 module github.com/sadagatasgarov/testjson
 
-go 1.21.4
+go 1.21
 
 require (
 	github.com/golang-jwt/jwt/v5 v5.1.0
