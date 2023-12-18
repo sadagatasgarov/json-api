@@ -26,14 +26,14 @@ services:
 
   
   my-json:
-    image: sadagatasgarov/my-json-app:v4
+    image: sadagatasgarov/my-json-app:latest
     container_name: myjson
     restart: always
     ports:
       - "3000:3000"
     environment:
       HOSTAPP: local_pgdb
-      USERAPP: user-namedocker 
+      USERAPP: user-name
       PASSAPP: strong-password
       DB: postgres
 
