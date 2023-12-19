@@ -10,3 +10,8 @@ docker:
 	@docker build -t sadagatasgarov/my-json-app .
 	@docker push sadagatasgarov/my-json-app:latest
 	@docker compose up -d
+
+git:
+	@git add .
+	@git commit -m"Duzelis"
+	@git push -u origin main

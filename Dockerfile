@@ -6,7 +6,6 @@ COPY . .
 
 #RUN go mod download
 
-COPY *.go .
 
 RUN go build -o ./app/gobank
 CMD ["chmod", "+x", "./app/gobank" ]
